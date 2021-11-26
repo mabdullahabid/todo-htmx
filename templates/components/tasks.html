@@ -1,21 +1,34 @@
-<div class="card w-600 mw-full mx-auto" id="tasks">
-    <!-- new id -->
+<!-- tasks.html -->
+<!-- the hx-swap and target moved to the parent div -->
+<div class="card w-600 mw-full mx-auto" id="tasks" hx-swap="outerHTML" hx-target="#tasks">
     <h3 class="card-title"> Your tasks </h3>
     <ul>
         {% for task in tasks %}
-        <li> {{task}} </li>
+        {% if task.done %}
+        <div class="custom-checkbox">
+            <input type="checkbox" id="checkbox-done-{{task.id}}" value="" checked="checked"
+                hx-post="{% url 'complete' task.id %}" hx-trigger="click">
+            <label for="checkbox-done-{{task.id}}"><del> {{ task.name }} </del> </label>
+
+        </div>
+        {% else %}
+        <div class="custom-checkbox">
+            <input type="checkbox" id="checkbox-notdone-{{task.id}}" value="" hx-post="{% url 'complete' task.id %}"
+                hx-trigger="click">
+            <label for="checkbox-notdone-{{task.id}}">{{ task.name }} </label>
+
+        </div>
+        {% endif %}
+
         {% empty %}
         <li> No items on your list yet </li>
         {% endfor %}
-        <!-- new HTMX -->
         {% if errors %} {{errors}} {% endif %}
-        <!-- new -->
-
-        <form hx-post="{% url 'home' %}" hx-swap="outerHTML" hx-target="#tasks">
+        <form hx-post="{% url 'home' %}">
             {{ form }}
             <button type="submit"> Add </button>
         </form>
 
-        <!-- no hx-trigger on a form means it will be on submit -->
+
     </ul>
 </div>

@@ -1,5 +1,8 @@
 from django.shortcuts import render
+from django.views.decorators.http import require_POST  # new
+
 from allauth.account.forms import SignupForm
+
 from .models import Task
 from .forms import TaskForm
 
@@ -58,3 +61,24 @@ def home(request):
 
 def auth(request):
     return render(request, "components/auth.html")
+
+
+@require_POST
+def complete(request, task_id):
+    task = Task.objects.get(id=task_id)
+    if task.done == True:
+        task.done = False
+    else:
+        task.done = True
+    task.save()
+    tasks = Task.objects.filter(user=request.user)
+    # our tasks components needs a form, tasks, and errors to render
+    return render(
+        request,
+        "components/tasks.html",
+        {
+            "form": TaskForm(),
+            "tasks": tasks,
+            "errors": None,
+        },
+    )
